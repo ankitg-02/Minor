@@ -1,0 +1,12 @@
+pandas
+numpy
+nltk
+regex
+scikit-learn
+googleapiclient
+streamlit
+plotly
+matplotlib
+wordcloud
+python-dotenv
+tqdm

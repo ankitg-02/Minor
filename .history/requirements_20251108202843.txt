@@ -1,0 +1,14 @@
+pandas
+numpy
+nltk
+regex
+scikit-learn
+google-api-python-clientcd C:\Users\HP\OneDrive\Desktop\Minor
+venv\Scripts\python.exe -m pip install --upgrade pip
+venv\Scripts\python.exe -m pip install -r requirements.txt
+streamlit
+plotly
+matplotlib
+wordcloud
+python-dotenv
+tqdm

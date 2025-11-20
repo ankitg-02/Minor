@@ -42,11 +42,11 @@ def rule_based_sentiment(text):
             score -= 1
 
     if score > 0:
-        return "good"
+        return "Positive"
     elif score < 0:
-        return "bad"
+        return "Negative"
     else:
-        return "neutral"
+        return "Neutral"
 
 @timer
 def train_sentiment_model():

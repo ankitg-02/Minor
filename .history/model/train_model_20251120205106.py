@@ -42,11 +42,11 @@ def rule_based_sentiment(text):
             score -= 1
 
     if score > 0:
-        return "good"
+        return "Positive"
     elif score < 0:
-        return "bad"
+        return "Negative"
     else:
-        return "neutral"
+        return "Neutral"
 
 @timer
 def train_sentiment_model():
@@ -77,7 +77,7 @@ def train_sentiment_model():
         acc = model.score(X_test, y_test)
         log.info(f"📊 Model Accuracy: {acc:.3f}")
 
-        save_model(model, vectorizer, path="model/sentiment_model.pkl")
+        save_model(model, vectorizer, path="/sentiment_model.pkl")
 
     except Exception as e:
         handle_exception(e, "model_training")

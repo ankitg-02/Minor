@@ -4,9 +4,9 @@ fetch_youtube_comments.py
 Fetches comments and metadata from YouTube using Data API.
 """
 
-from .api_config import get_youtube_service
+from api_config import get_youtube_service
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 import os
 import json

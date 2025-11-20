@@ -155,9 +155,7 @@ try:
     # Sentiment Distribution
     st.subheader("User Satisfaction (Sentiment Distribution)")
     sentiment_counts = filtered_df['sentiment'].value_counts()
-    all_sentiments = pd.Series({'good': 0, 'bad': 0, 'neutral': 0})
-    all_sentiments.update(sentiment_counts)
-    st.bar_chart(all_sentiments)
+    st.bar_chart(sentiment_counts)
 
     # Sentiment percentages
     st.write("Sentiment Breakdown:")

@@ -65,10 +65,8 @@ try:
             total_comments = len(processed_df)
             st.sidebar.metric("Total Comments", total_comments)
             sentiment_counts = processed_df['sentiment'].value_counts()
-            all_sentiments = {'good': 0, 'bad': 0, 'neutral': 0}
-            all_sentiments.update(sentiment_counts.to_dict())
-            for sentiment, count in all_sentiments.items():
-                percentage = (count / total_comments) * 100 if total_comments > 0 else 0
+            for sentiment, count in sentiment_counts.items():
+                percentage = (count / total_comments) * 100
                 st.sidebar.write(f"{sentiment}: {count} ({percentage:.1f}%)")
     else:
         st.sidebar.write("No processed data files found.")
@@ -155,9 +153,7 @@ try:
     # Sentiment Distribution
     st.subheader("User Satisfaction (Sentiment Distribution)")
     sentiment_counts = filtered_df['sentiment'].value_counts()
-    all_sentiments = pd.Series({'good': 0, 'bad': 0, 'neutral': 0})
-    all_sentiments.update(sentiment_counts)
-    st.bar_chart(all_sentiments)
+    st.bar_chart(sentiment_counts)
 
     # Sentiment percentages
     st.write("Sentiment Breakdown:")

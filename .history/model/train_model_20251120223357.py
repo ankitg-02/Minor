@@ -5,6 +5,7 @@ Train a sentiment model using cleaned YouTube comments.
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+import os
 from pathlib import Path
 import sys
 
@@ -20,6 +21,8 @@ from model.features import get_tfidf_vectorizer
 from model.model_utils import save_model
 from utils.exception import DataProcessingError, handle_exception
 from utils.timer import timer
+
+import os
 
 log = get_logger(__name__)
 

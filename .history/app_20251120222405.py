@@ -21,14 +21,6 @@ st.set_page_config(page_title="YouTube Comments Analysis Dashboard", page_icon="
 # Sidebar for data exploration
 st.sidebar.title("📂 Data Explorer")
 
-@st.cache_data
-def load_raw_data(file_path):
-    return pd.read_csv(file_path)
-
-@st.cache_data
-def load_processed_data(file_path):
-    return pd.read_csv(file_path)
-
 # Raw Data Section
 st.sidebar.header("Raw Data (API Fetched)")
 try:
@@ -38,7 +30,7 @@ try:
         selected_raw = st.sidebar.selectbox("Select Raw Data File", raw_files)
         if st.sidebar.button("View Raw Data"):
             raw_path = os.path.join(RAW_DIR, selected_raw)
-            raw_df = load_raw_data(raw_path)
+            raw_df = pd.read_csv(raw_path)
             st.sidebar.write(f"**Latest Raw Data:** {selected_raw}")
             st.sidebar.write(f"**Timestamp:** {datetime.fromtimestamp(os.path.getmtime(raw_path)).strftime('%Y-%m-%d %H:%M:%S')}")
             st.sidebar.dataframe(raw_df.head(10))
@@ -56,7 +48,7 @@ try:
         selected_processed = st.sidebar.selectbox("Select Processed Data File", processed_files, key="processed_select")
         if st.sidebar.button("View Processed Data", key="view_processed"):
             processed_path = os.path.join(PROCESSED_DIR, selected_processed)
-            processed_df = load_processed_data(processed_path)
+            processed_df = pd.read_csv(processed_path)
             st.sidebar.write(f"**Latest Processed Data:** {selected_processed}")
             st.sidebar.write(f"**Timestamp:** {datetime.fromtimestamp(os.path.getmtime(processed_path)).strftime('%Y-%m-%d %H:%M:%S')}")
             st.sidebar.dataframe(processed_df.head(10))
@@ -65,10 +57,8 @@ try:
             total_comments = len(processed_df)
             st.sidebar.metric("Total Comments", total_comments)
             sentiment_counts = processed_df['sentiment'].value_counts()
-            all_sentiments = {'good': 0, 'bad': 0, 'neutral': 0}
-            all_sentiments.update(sentiment_counts.to_dict())
-            for sentiment, count in all_sentiments.items():
-                percentage = (count / total_comments) * 100 if total_comments > 0 else 0
+            for sentiment, count in sentiment_counts.items():
+                percentage = (count / total_comments) * 100
                 st.sidebar.write(f"{sentiment}: {count} ({percentage:.1f}%)")
     else:
         st.sidebar.write("No processed data files found.")
@@ -155,9 +145,7 @@ try:
     # Sentiment Distribution
     st.subheader("User Satisfaction (Sentiment Distribution)")
     sentiment_counts = filtered_df['sentiment'].value_counts()
-    all_sentiments = pd.Series({'good': 0, 'bad': 0, 'neutral': 0})
-    all_sentiments.update(sentiment_counts)
-    st.bar_chart(all_sentiments)
+    st.bar_chart(sentiment_counts)
 
     # Sentiment percentages
     st.write("Sentiment Breakdown:")

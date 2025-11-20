@@ -1,49 +1,79 @@
 """
-Preprocess raw YouTube comments into cleaned format.
+preprocessing_pipeline.py
+----------------------------------
+Main preprocessing pipeline for YouTube comments.
 """
 
-import os
-import sys
-from pathlib import Path
 import pandas as pd
+import os
 from tqdm import tqdm
+from text_cleaning import clean_text
 
-# Add project root to Python path
-PROJECT_ROOT = Path(__file__).parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+tqdm.pandas()  # Enable progress bar for pandas apply
 
-from utils.logger import get_logger
-from utils.config import RAW_DIR, PROCESSED_DIR
-from utils.file_helper import get_latest_file
-from utils.exception import DataProcessingError, handle_exception
-from utils.timer import timer
-from data_processing.text_cleaning import clean_text
 
-tqdm.pandas()
-log = get_logger(__name__)
+def load_raw_data(data: str):
+    """Loads raw comments data from CSV."""
+    if not os.path.exists(data):
+        raise FileNotFoundError(f"❌ File not found: {data}")
 
-@timer
-def run_preprocessing():
-    """Run preprocessing: load latest raw CSV, clean text, save processed CSV."""
-    try:
-        log.info("🧹 Starting preprocessing pipeline...")
-        raw_path = get_latest_file(RAW_DIR)
-        log.info(f"📄 Latest raw file: {raw_path}")
+    df = pd.read_csv(data)
+    print(f"📥 Loaded {len(df)} comments from {data}")
+    return df
 
-        df = pd.read_csv(raw_path)
-        if df.empty:
-            raise DataProcessingError("Raw CSV is empty.")
 
-        df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
-        df["cleaned_text"] = df["text"].progress_apply(clean_text)
-        df = df[df["cleaned_text"].str.strip() != ""]
+def preprocess_data(df: pd.DataFrame):
+    """Performs text cleaning and deduplication."""
+    print("🧹 Starting preprocessing...")
 
-        out_path = os.path.join(PROCESSED_DIR, f"cleaned_{os.path.basename(raw_path)}")
-        df.to_csv(out_path, index=False)
-        log.info(f"✅ Cleaned data saved to {out_path}")
-        return out_path
+    # Drop duplicates and nulls
+    df = df.drop_duplicates(subset=["text"])
+    df = df.dropna(subset=["text"])
 
-    except Exception as e:
-        handle_exception(e, "data_processing")
-        raise
+    # Clean comments
+    df["cleaned_text"] = df["text"].progress_apply(clean_text)
+
+    # Drop empty cleaned text
+    df = df[df["cleaned_text"].str.strip() != ""]
+    print(f"✅ Preprocessing complete: {len(df)} valid comments")
+    return df
+
+
+def save_processed_data(df: pd.DataFrame, keyword: str):
+    """Saves processed comments to data/processed folder."""
+    os.makedirs("data/processed", exist_ok=True)
+    out_path = f"data/processed/cleaned_comments_{keyword}.csv"
+    df.to_csv(out_path, index=False)
+    print(f"💾 Cleaned data saved to: {out_path}")
+
+
+def run_preprocessing_pipeline(data: str, keyword: str = "YouTube"):
+    """
+    Full preprocessing pipeline:
+      1. Load raw CSV
+      2. Clean text
+      3. Save processed CSV
+    """
+    df = load_raw_data(data)
+    df_clean = preprocess_data(df)
+    save_processed_data(df_clean, keyword)
+    print("🚀 Preprocessing pipeline executed successfully!")
+    return df_clean
+
+
+# ✅ Run manually for testing
+if __name__ == "__main__":
+    # Use the most recent comments file from your data/raw directory
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "raw")
+    
+    # List all comment files
+    comment_files = [f for f in os.listdir(data_dir) if f.startswith("comments_") and f.endswith(".csv")]
+    
+    if not comment_files:
+        raise FileNotFoundError("❌ No comment files found in data/raw directory")
+        
+    # Get most recent file
+    latest_file = os.path.join(data_dir, sorted(comment_files)[-1])
+    print(f"📂 Using file: {latest_file}")
+    
+    run_preprocessing_pipeline(latest_file, keyword="Instagram update")

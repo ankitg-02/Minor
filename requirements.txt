@@ -5,6 +5,7 @@ regex
 scikit-learn
 google-api-python-client
 streamlit
+emoji
 plotly
 matplotlib
 wordcloud

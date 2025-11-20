@@ -1,0 +1,7 @@
+2025-11-16 19:35:28 | INFO | __main__: 🚀 Starting ingestion for 'Instagram update'
+2025-11-16 19:35:35 | INFO | __main__: 🔍 Found 3 videos for 'Instagram update'
+2025-11-16 19:35:36 | INFO | __main__: 💬 5 comments fetched for video OqRfZjdqpO8
+2025-11-16 19:35:37 | INFO | __main__: 💬 1 comments fetched for video uV5fUHPoqlc
+2025-11-16 19:35:38 | INFO | __main__: 💬 30 comments fetched for video AXVDpNYLR8o
+2025-11-16 19:35:38 | INFO | __main__: ✅ Saved 36 comments to C:\Users\HP\OneDrive\Desktop\Minor\data\raw\comments_Instagram_update_20251116_193538.csv
+2025-11-16 19:35:38 | INFO | utils.timer: ⏱️  run_ingestion executed in 10.16s

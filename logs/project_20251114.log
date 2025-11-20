@@ -1,0 +1,16 @@
+2025-11-14 22:43:08 | INFO | __main__: 🚀 Starting ingestion for 'Instagram update'
+2025-11-14 22:43:11 | INFO | __main__: 🔍 Found 3 videos for 'Instagram update'
+2025-11-14 22:43:17 | INFO | __main__: 💬 5 comments fetched for video OqRfZjdqpO8
+2025-11-14 22:43:19 | INFO | __main__: 💬 1 comments fetched for video uV5fUHPoqlc
+2025-11-14 22:43:20 | INFO | __main__: 💬 40 comments fetched for video N4Dvapjqnyw
+2025-11-14 22:43:20 | INFO | __main__: ✅ Saved 46 comments to c:\Users\HP\OneDrive\Desktop\Minor\data\raw\comments_Instagram_update_20251114_224320.csv
+2025-11-14 22:43:21 | INFO | utils.timer: ⏱️  run_ingestion executed in 12.55s
+2025-11-14 22:55:22 | INFO | test_preprocessing: 🧹 Starting preprocessing pipeline...
+2025-11-14 22:55:22 | INFO | test_preprocessing: 📄 Latest raw file: c:\Users\HP\OneDrive\Desktop\Minor\data\raw\comments_Instagram_update_20251114_224320.csv
+2025-11-14 23:00:00 | INFO | __main__: 🚀 Starting ingestion for 'Instagram update'
+2025-11-14 23:00:01 | INFO | __main__: 🔍 Found 3 videos for 'Instagram update'
+2025-11-14 23:00:02 | INFO | __main__: 💬 5 comments fetched for video OqRfZjdqpO8
+2025-11-14 23:00:03 | INFO | __main__: 💬 15 comments fetched for video ve3kvQxETx0
+2025-11-14 23:00:03 | INFO | __main__: 💬 1 comments fetched for video uV5fUHPoqlc
+2025-11-14 23:00:03 | INFO | __main__: ✅ Saved 21 comments to c:\Users\HP\OneDrive\Desktop\Minor\data\raw\comments_Instagram_update_20251114_230003.csv
+2025-11-14 23:00:03 | INFO | utils.timer: ⏱️  run_ingestion executed in 3.68s

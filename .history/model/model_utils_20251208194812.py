@@ -46,36 +46,6 @@ def save_model(model, vectorizer, path="model/sentiment_model.pkl", **kwargs):
         joblib.dump(metadata, path)
         log.info(f"💾 LSTM model saved at {path}")
 
-    else:
-        # Traditional ML model
-        joblib.dump({"model": model, "vectorizer": vectorizer}, path)
-        log.info(f"💾 Traditional ML model saved at {path}")
-
-def load_model(path="model/sentiment_model.pkl"):
-    """Load trained ML model (supports both traditional ML and deep learning models)."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Model file not found at {path}")
-
-    data = joblib.load(path)
-
-    # Check if this is an LSTM model
-    if isinstance(data, dict) and data.get("model_type") == "lstm":
-        if not TENSORFLOW_AVAILABLE:
-            raise ImportError("TensorFlow is required to load LSTM models")
-
-        # Load LSTM model components
-        model = tf.keras.models.load_model(data["model_path"])
-        tokenizer = joblib.load(data["tokenizer_path"])
-        label_encoder = joblib.load(data["label_encoder_path"])
-        max_len = data["max_len"]
-
-        log.info("📥 Loaded LSTM model.")
-        return model, tokenizer, label_encoder, max_len
-
-    else:
-        # Traditional ML model
-        log.info("📥 Loaded traditional ML model.")
-        return data["model"], data["vectorizer"]
 
 def load_processed_data(csv_path):
     """

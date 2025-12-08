@@ -262,43 +262,17 @@ with tab1:
                 @st.cache_resource
                 def load_ml_model():
                     try:
-                        model_components = load_model("model/sentiment_model.pkl")
-                        # Check if this is an LSTM model (returns 4 components) or traditional ML (returns 2)
-                        if len(model_components) == 4:
-                            # LSTM model: model, tokenizer, label_encoder, max_len
-                            model, tokenizer, label_encoder, max_len = model_components
-                            return model, tokenizer, label_encoder, max_len
-                        else:
-                            # Traditional ML model: model, vectorizer
-                            model, vectorizer = model_components
-                            return model, vectorizer
+                        return load_model("model/sentiment_model.pkl")
                     except FileNotFoundError:
                         return None
 
                 ml_model = load_ml_model()
                 if ml_model:
-                    if len(ml_model) == 4:
-                        # LSTM model
-                        model, tokenizer, label_encoder, max_len = ml_model
-
-                        # Preprocess text for LSTM
-                        from tensorflow.keras.preprocessing.sequence import pad_sequences
-                        sequences = tokenizer.texts_to_sequences([cleaned])
-                        X = pad_sequences(sequences, maxlen=max_len)
-
-                        # Make prediction
-                        predictions = model.predict(X)
-                        predicted_class = predictions.argmax(axis=1)[0]
-                        sentiment = label_encoder.inverse_transform([predicted_class])[0]
-                        confidence = float(predictions.max())
-                        method = "🤖 LSTM Model"
-                    else:
-                        # Traditional ML model
-                        model, vectorizer = ml_model
-                        X = vectorizer.transform([cleaned])
-                        sentiment = model.predict(X)[0]
-                        method = "🤖 ML Model"
-                        confidence = max(model.predict_proba(X)[0]) if hasattr(model, 'predict_proba') else 0.8
+                    model, vectorizer = ml_model
+                    X = vectorizer.transform([cleaned])
+                    sentiment = model.predict(X)[0]
+                    method = "🤖 ML Model"
+                    confidence = max(model.predict_proba(X)[0]) if hasattr(model, 'predict_proba') else 0.8
                 else:
                     sentiment = rule_based_sentiment(cleaned)
                     method = "📋 Rule-based"
@@ -596,3 +570,21 @@ with tab3:
     except Exception as e:
         st.error(f"❌ Error in advanced analytics: {str(e)}")
         st.info("💡 Ensure you have processed data available for analysis.")
+
+with tab4:
+    st.markdown("### 🤖 Model Performance Comparison")
+    st.markdown("Compare the performance of different machine learning models for sentiment analysis.")
+
+    try:
+        # Load model comparison results
+        import json
+        import os
+
+        comparison_file = "model/model_comparison.json"
+        if os.path.exists(comparison_file):
+            with open(comparison_file, "r") as f:
+                comparison_data = json.load(f)
+
+            # Display best model
+            best_model = comparison_data["best_model"]
+            best_metrics = comparison_data["best_metrics"]

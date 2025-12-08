@@ -68,38 +68,13 @@ def rule_based_sentiment(text):
     else:
         return "neutral"
 
-def create_lstm_model():
-    """Create and compile LSTM model for text classification."""
-    model = Sequential([
-        Embedding(input_dim=5000, output_dim=128, input_length=100),
-        SpatialDropout1D(0.2),
-        LSTM(100, dropout=0.2, recurrent_dropout=0.2),
-        Dense(64, activation='relu'),
-        Dense(3, activation='softmax')  # 3 classes: good, bad, neutral
-    ])
-
-    model.compile(
-        loss='categorical_crossentropy',
-        optimizer='adam',
-        metrics=['accuracy']
-    )
-
-    return model
-
 def get_models() -> Dict[str, Any]:
     """Get dictionary of models to train and compare."""
-    models = {
+    return {
         "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
         "SVM": SVC(kernel='linear', random_state=42),
-        "NaiveBayes": MultinomialNB(),
-        "RandomForest": RandomForestClassifier(n_estimators=100, random_state=42)
+        "NaiveBayes": MultinomialNB()
     }
-
-    # Add LSTM if TensorFlow is available
-    if TENSORFLOW_AVAILABLE:
-        models["LSTM"] = "lstm_model"  # Placeholder, will be handled specially
-
-    return models
 
 def evaluate_model(model, X_test, y_test, model_name: str) -> Dict[str, float]:
     """Evaluate a trained model and return metrics."""
@@ -163,61 +138,11 @@ def compare_models() -> Dict[str, Any]:
 
         log.info("🏃 Training and evaluating models...")
 
-        # Prepare data for LSTM separately
-        if TENSORFLOW_AVAILABLE and "LSTM" in models:
-            # Tokenize text for LSTM
-            tokenizer = Tokenizer(num_words=5000)
-            tokenizer.fit_on_texts(df["cleaned_text"])
-
-            X_text_sequences = tokenizer.texts_to_sequences(df["cleaned_text"])
-            X_text_padded = pad_sequences(X_text_sequences, maxlen=100)
-
-            # Encode labels
-            label_encoder = LabelEncoder()
-            y_encoded = label_encoder.fit_transform(y)
-            y_categorical = to_categorical(y_encoded)
-
-            X_train_lstm, X_test_lstm, y_train_lstm, y_test_lstm = train_test_split(
-                X_text_padded, y_categorical, test_size=0.2, random_state=42, stratify=y_encoded
-            )
-
         for model_name, model in models.items():
             log.info(f"🔄 Training {model_name}...")
 
-            # Special handling for LSTM
-            if model_name == "LSTM" and TENSORFLOW_AVAILABLE:
-                lstm_model = create_lstm_model()
-                lstm_model.fit(X_train_lstm, y_train_lstm, epochs=5, batch_size=64, validation_split=0.1, verbose=0)
-
-                # Evaluate LSTM
-                y_pred_lstm = lstm_model.predict(X_test_lstm)
-                y_pred_classes = np.argmax(y_pred_lstm, axis=1)
-                y_test_classes = np.argmax(y_test_lstm, axis=1)
-
-                metrics = {
-                    "accuracy": accuracy_score(y_test_classes, y_pred_classes),
-                    "precision_macro": precision_score(y_test_classes, y_pred_classes, average='macro'),
-                    "recall_macro": recall_score(y_test_classes, y_pred_classes, average='macro'),
-                    "f1_macro": f1_score(y_test_classes, y_pred_classes, average='macro'),
-                    "precision_weighted": precision_score(y_test_classes, y_pred_classes, average='weighted'),
-                    "recall_weighted": recall_score(y_test_classes, y_pred_classes, average='weighted'),
-                    "f1_weighted": f1_score(y_test_classes, y_pred_classes, average='weighted')
-                }
-
-                log.info(f"📊 {model_name} Metrics:")
-                log.info(f"   Accuracy: {metrics['accuracy']:.4f}")
-                log.info(f"   F1 Macro: {metrics['f1_macro']:.4f}")
-                log.info(f"   F1 Weighted: {metrics['f1_weighted']:.4f}")
-
-                trained_models[model_name] = {
-                    "model": lstm_model,
-                    "tokenizer": tokenizer,
-                    "label_encoder": label_encoder,
-                    "max_len": 100
-                }
-
             # Special handling for Naive Bayes (needs non-negative features)
-            elif model_name == "NaiveBayes":
+            if model_name == "NaiveBayes":
                 # Use MaxAbsScaler for Naive Bayes since it needs non-negative values
                 nb_scaler = MaxAbsScaler()
                 X_numeric_nb = nb_scaler.fit_transform(numeric_features)
@@ -268,21 +193,8 @@ def compare_models() -> Dict[str, Any]:
 
         # Save best model
         best_model_data = trained_models[best_model_name]
-
-        if best_model_name == "LSTM":
-            # Save LSTM model with all components
-            save_model(
-                best_model_data["model"],
-                None,  # No vectorizer for LSTM
-                path="model/sentiment_model.pkl",
-                tokenizer=best_model_data["tokenizer"],
-                label_encoder=best_model_data["label_encoder"],
-                max_len=best_model_data["max_len"]
-            )
-        else:
-            # Save traditional ML model
-            save_model(best_model_data["model"], vectorizer, path="model/sentiment_model.pkl")
-            joblib.dump(best_model_data["scaler"], "model/feature_scaler.pkl")
+        save_model(best_model_data["model"], vectorizer, path="model/sentiment_model.pkl")
+        joblib.dump(best_model_data["scaler"], "model/feature_scaler.pkl")
 
         log.info("✅ Best model, vectorizer, and scaler saved successfully.")
         log.info("📊 Model comparison results saved to model/model_comparison.json")

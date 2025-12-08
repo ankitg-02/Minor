@@ -68,24 +68,6 @@ def rule_based_sentiment(text):
     else:
         return "neutral"
 
-def create_lstm_model():
-    """Create and compile LSTM model for text classification."""
-    model = Sequential([
-        Embedding(input_dim=5000, output_dim=128, input_length=100),
-        SpatialDropout1D(0.2),
-        LSTM(100, dropout=0.2, recurrent_dropout=0.2),
-        Dense(64, activation='relu'),
-        Dense(3, activation='softmax')  # 3 classes: good, bad, neutral
-    ])
-
-    model.compile(
-        loss='categorical_crossentropy',
-        optimizer='adam',
-        metrics=['accuracy']
-    )
-
-    return model
-
 def get_models() -> Dict[str, Any]:
     """Get dictionary of models to train and compare."""
     models = {
@@ -268,21 +250,8 @@ def compare_models() -> Dict[str, Any]:
 
         # Save best model
         best_model_data = trained_models[best_model_name]
-
-        if best_model_name == "LSTM":
-            # Save LSTM model with all components
-            save_model(
-                best_model_data["model"],
-                None,  # No vectorizer for LSTM
-                path="model/sentiment_model.pkl",
-                tokenizer=best_model_data["tokenizer"],
-                label_encoder=best_model_data["label_encoder"],
-                max_len=best_model_data["max_len"]
-            )
-        else:
-            # Save traditional ML model
-            save_model(best_model_data["model"], vectorizer, path="model/sentiment_model.pkl")
-            joblib.dump(best_model_data["scaler"], "model/feature_scaler.pkl")
+        save_model(best_model_data["model"], vectorizer, path="model/sentiment_model.pkl")
+        joblib.dump(best_model_data["scaler"], "model/feature_scaler.pkl")
 
         log.info("✅ Best model, vectorizer, and scaler saved successfully.")
         log.info("📊 Model comparison results saved to model/model_comparison.json")

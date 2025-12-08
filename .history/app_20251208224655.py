@@ -596,3 +596,100 @@ with tab3:
     except Exception as e:
         st.error(f"❌ Error in advanced analytics: {str(e)}")
         st.info("💡 Ensure you have processed data available for analysis.")
+
+with tab4:
+    st.markdown("### 🤖 Model Performance Comparison")
+    st.markdown("Compare the performance of different machine learning models for sentiment analysis.")
+
+    try:
+        # Load model comparison results
+        import json
+        import os
+
+        comparison_file = "model/model_comparison.json"
+        if os.path.exists(comparison_file):
+            with open(comparison_file, "r") as f:
+                comparison_data = json.load(f)
+
+            # Display best model
+            best_model = comparison_data["best_model"]
+            best_metrics = comparison_data["best_metrics"]
+
+            st.success(f"🏆 **Best Model Selected:** {best_model}")
+            st.info(f"**Best F1 Score:** {best_metrics['f1_weighted']:.4f}")
+
+            # Model comparison table
+            st.markdown("#### 📊 Model Performance Metrics")
+
+            models_data = []
+            for model_name, metrics in comparison_data["models"].items():
+                models_data.append({
+                    "Model": model_name,
+                    "Accuracy": f"{metrics['accuracy']:.4f}",
+                    "F1 Macro": f"{metrics['f1_macro']:.4f}",
+                    "F1 Weighted": f"{metrics['f1_weighted']:.4f}",
+                    "Precision (Weighted)": f"{metrics['precision_weighted']:.4f}",
+                    "Recall (Weighted)": f"{metrics['recall_weighted']:.4f}"
+                })
+
+            comparison_df = pd.DataFrame(models_data)
+            st.dataframe(comparison_df.style.highlight_max(axis=0, subset=['Accuracy', 'F1 Macro', 'F1 Weighted', 'Precision (Weighted)', 'Recall (Weighted)']), use_container_width=True)
+
+            # Training information
+            st.markdown("#### 📋 Training Information")
+            training_info = comparison_data["training_info"]
+
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("📊 Dataset Size", training_info["dataset_size"])
+            with col2:
+                st.metric("🎯 Training Size", training_info["train_size"])
+            with col3:
+                st.metric("🧪 Test Size", training_info["test_size"])
+            with col4:
+                st.metric("📈 Classes", len(training_info["sentiment_distribution"]))
+
+            # Sentiment distribution
+            st.markdown("#### 🎭 Sentiment Distribution")
+            sentiment_dist = training_info["sentiment_distribution"]
+            dist_df = pd.DataFrame(list(sentiment_dist.items()), columns=["Sentiment", "Count"])
+            st.bar_chart(dist_df.set_index("Sentiment"))
+
+            # Model details
+            st.markdown("#### 🔍 Model Details")
+            with st.expander("View detailed metrics for each model"):
+                for model_name, metrics in comparison_data["models"].items():
+                    st.markdown(f"**{model_name}**")
+                    detailed_metrics = pd.DataFrame({
+                        "Metric": ["Accuracy", "Precision (Macro)", "Precision (Weighted)", "Recall (Macro)", "Recall (Weighted)", "F1 (Macro)", "F1 (Weighted)"],
+                        "Value": [
+                            f"{metrics['accuracy']:.4f}",
+                            f"{metrics['precision_macro']:.4f}",
+                            f"{metrics['precision_weighted']:.4f}",
+                            f"{metrics['recall_macro']:.4f}",
+                            f"{metrics['recall_weighted']:.4f}",
+                            f"{metrics['f1_macro']:.4f}",
+                            f"{metrics['f1_weighted']:.4f}"
+                        ]
+                    })
+                    st.table(detailed_metrics)
+                    st.markdown("---")
+
+        else:
+            st.warning("🤖 No model comparison data found.")
+            st.info("💡 Run the model training to generate comparison results: `python -c 'from model.train_model import train_sentiment_model; train_sentiment_model()'`")
+
+            # Button to trigger training
+            if st.button("🚀 Train Models & Compare", type="primary"):
+                with st.spinner("🔄 Training and comparing models... This may take a few minutes."):
+                    try:
+                        from model.train_model import train_sentiment_model
+                        train_sentiment_model()
+                        st.success("✅ Model training completed!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Training failed: {str(e)}")
+
+    except Exception as e:
+        st.error(f"❌ Error loading model comparison: {str(e)}")
+        st.info("💡 Ensure model comparison data is available.")

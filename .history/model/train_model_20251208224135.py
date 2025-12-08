@@ -268,21 +268,8 @@ def compare_models() -> Dict[str, Any]:
 
         # Save best model
         best_model_data = trained_models[best_model_name]
-
-        if best_model_name == "LSTM":
-            # Save LSTM model with all components
-            save_model(
-                best_model_data["model"],
-                None,  # No vectorizer for LSTM
-                path="model/sentiment_model.pkl",
-                tokenizer=best_model_data["tokenizer"],
-                label_encoder=best_model_data["label_encoder"],
-                max_len=best_model_data["max_len"]
-            )
-        else:
-            # Save traditional ML model
-            save_model(best_model_data["model"], vectorizer, path="model/sentiment_model.pkl")
-            joblib.dump(best_model_data["scaler"], "model/feature_scaler.pkl")
+        save_model(best_model_data["model"], vectorizer, path="model/sentiment_model.pkl")
+        joblib.dump(best_model_data["scaler"], "model/feature_scaler.pkl")
 
         log.info("✅ Best model, vectorizer, and scaler saved successfully.")
         log.info("📊 Model comparison results saved to model/model_comparison.json")

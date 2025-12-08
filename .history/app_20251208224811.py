@@ -594,5 +594,3 @@ with tab3:
         }), use_container_width=True)
 
     except Exception as e:
-        st.error(f"❌ Error in advanced analytics: {str(e)}")
-        st.info("💡 Ensure you have processed data available for analysis.")
